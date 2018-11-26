@@ -46,7 +46,8 @@ dependencies {
     nativeMainImplementation 'com.github.msink:libui:alpha4.1-2'
 }
 
-tasks.compileKotlinNative.dependsOn compileWindowsResources
+tasks.linkDebugExecutableNative.dependsOn compileWindowsResources
+tasks.linkReleaseExecutableNative.dependsOn compileWindowsResources
 
 task runProgram {
     def buildType = 'DEBUG' // 'RELEASE'
