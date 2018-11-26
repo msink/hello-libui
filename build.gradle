@@ -1,0 +1,90 @@
+plugins {
+    id "org.jetbrains.kotlin.multiplatform" version "1.3.10"
+}
+
+repositories {
+    mavenCentral()
+    maven { url "https://dl.bintray.com/msink/kotlin-native" }
+}
+
+final def os = org.gradle.internal.os.OperatingSystem.current()
+
+def resourcesDirectory = "$projectDir/src/nativeMain/resources"
+def windowsResources = "$buildDir/resources/hello.res"
+
+task compileWindowsResources(type: Exec) {
+    onlyIf { os.isWindows() }
+
+    def konanUserDir = System.getenv("KONAN_DATA_DIR") ?: "${System.getProperty("user.home")}/.konan"
+    def windresDir = "${konanUserDir}/dependencies/msys2-mingw-w64-x86_64-gcc-7.3.0-clang-llvm-lld-6.0.1/bin"
+    def rcFile = file("${resourcesDirectory}/hello.rc")
+
+    inputs.file rcFile
+    outputs.file file(windowsResources)
+    commandLine "${windresDir}/windres", rcFile, '-O', 'coff', '-o', windowsResources
+    environment 'PATH', "${windresDir};${System.getenv('PATH')}"
+}
+
+kotlin {
+    targets {
+        if (os.isWindows()) {
+            fromPreset(presets.mingwX64, 'windows') {
+                compilations.main {
+                    outputKinds 'executable'
+                    linkerOpts "$windowsResources -mwindows"
+                }
+            }
+            tasks.compileKotlinWindows.dependsOn compileWindowsResources
+
+        } else if (os.isLinux()) {
+            fromPreset(presets.linuxX64, 'linux') {
+                compilations.main {
+                    outputKinds 'executable'
+                }
+            }
+
+        } else if (os.isMacOsX()) {
+            fromPreset(presets.macosX64, 'macosx') {
+                compilations.main {
+                    outputKinds 'executable'
+                }
+            }
+        }
+    }
+
+    sourceSets {
+        windowsMain {
+            kotlin.srcDir('src/nativeMain/kotlin')
+            dependencies {
+                implementation 'com.github.msink:libui-windows:alpha4.1-2'
+            }
+        }
+        linuxMain {
+            kotlin.srcDir('src/nativeMain/kotlin')
+            dependencies {
+                implementation 'com.github.msink:libui-linux:alpha4.1-2'
+            }
+        }
+        macosxMain {
+            kotlin.srcDir('src/nativeMain/kotlin')
+            dependencies {
+                implementation 'com.github.msink:libui-macosx:alpha4.1-2'
+            }
+        }
+    }
+}
+
+task runProgram {
+    def buildType = 'DEBUG' // 'RELEASE'
+    def target = kotlin.targets.find {
+        it instanceof org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget && it.publishable
+    }
+
+    dependsOn target.compilations.main.linkTaskName('EXECUTABLE', buildType)
+
+    doLast {
+        exec {
+            executable target.compilations.main.getBinary('EXECUTABLE', buildType)
+        }
+    }
+}
