@@ -26,53 +26,27 @@ task compileWindowsResources(type: Exec) {
 }
 
 kotlin {
+    final def nativePreset = os.isWindows() ? presets.mingwX64
+            : os.isLinux()   ? presets.linuxX64
+            : os.isMacOsX()  ? presets.macosX64
+            : /*unknown host*/ null
     targets {
-        if (os.isWindows()) {
-            fromPreset(presets.mingwX64, 'windows') {
-                compilations.main {
-                    outputKinds 'executable'
+        fromPreset(nativePreset, 'native') {
+            compilations.main {
+                outputKinds 'executable'
+                if (os.isWindows()) {
                     linkerOpts "$windowsResources -mwindows"
                 }
-            }
-            tasks.compileKotlinWindows.dependsOn compileWindowsResources
-
-        } else if (os.isLinux()) {
-            fromPreset(presets.linuxX64, 'linux') {
-                compilations.main {
-                    outputKinds 'executable'
-                }
-            }
-
-        } else if (os.isMacOsX()) {
-            fromPreset(presets.macosX64, 'macosx') {
-                compilations.main {
-                    outputKinds 'executable'
-                }
-            }
-        }
-    }
-
-    sourceSets {
-        windowsMain {
-            kotlin.srcDir('src/nativeMain/kotlin')
-            dependencies {
-                implementation 'com.github.msink:libui-windows:alpha4.1-2'
-            }
-        }
-        linuxMain {
-            kotlin.srcDir('src/nativeMain/kotlin')
-            dependencies {
-                implementation 'com.github.msink:libui-linux:alpha4.1-2'
-            }
-        }
-        macosxMain {
-            kotlin.srcDir('src/nativeMain/kotlin')
-            dependencies {
-                implementation 'com.github.msink:libui-macosx:alpha4.1-2'
             }
         }
     }
 }
+
+dependencies {
+    nativeMainImplementation 'com.github.msink:libui:alpha4.1-2'
+}
+
+tasks.compileKotlinNative.dependsOn compileWindowsResources
 
 task runProgram {
     def buildType = 'DEBUG' // 'RELEASE'
