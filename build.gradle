@@ -16,13 +16,13 @@ task compileWindowsResources(type: Exec) {
     onlyIf { os.isWindows() }
 
     def konanUserDir = System.getenv("KONAN_DATA_DIR") ?: "${System.getProperty("user.home")}/.konan"
-    def windresDir = "${konanUserDir}/dependencies/msys2-mingw-w64-x86_64-gcc-7.3.0-clang-llvm-lld-6.0.1/bin"
+    def konanLLVMDir = "${konanUserDir}/dependencies/msys2-mingw-w64-x86_64-gcc-7.3.0-clang-llvm-lld-6.0.1/bin"
     def rcFile = file("${resourcesDirectory}/hello.rc")
 
     inputs.file rcFile
     outputs.file file(windowsResources)
-    commandLine "${windresDir}/windres", rcFile, '-O', 'coff', '-o', windowsResources
-    environment 'PATH', "${windresDir};${System.getenv('PATH')}"
+    commandLine 'cmd', '/c', 'windres', rcFile, '-O', 'coff', '-o', windowsResources
+    environment 'PATH', "c:/msys64/mingw64/bin;${konanLLVMDir};${System.getenv('PATH')}"
 }
 
 kotlin {
