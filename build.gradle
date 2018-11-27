@@ -43,7 +43,7 @@ kotlin {
 }
 
 dependencies {
-    nativeMainImplementation 'com.github.msink:libui:alpha4.1-2'
+    nativeMainImplementation 'com.github.msink:libui:0.1.0'
 }
 
 tasks.compileKotlinNative.dependsOn compileWindowsResources
