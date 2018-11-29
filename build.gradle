@@ -3,8 +3,7 @@ plugins {
 }
 
 repositories {
-    mavenCentral()
-    maven { url "https://dl.bintray.com/msink/kotlin-native" }
+    jcenter()
 }
 
 final def os = org.gradle.internal.os.OperatingSystem.current()
