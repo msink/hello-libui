@@ -1,8 +1,8 @@
 buildscript {
     repositories {
         maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
+        maven { url 'https://dl.bintray.com/msink/kotlin-dev' }
         jcenter()
-        mavenLocal()
     }
     dependencies {
         classpath "org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.3.20-eap-25"
@@ -53,7 +53,7 @@ kotlin {
 }
 
 dependencies {
-    nativeMainImplementation 'com.github.msink:libui:0.1.1-dev'
+    nativeMainImplementation 'com.github.msink:libui:0.2.0-dev'
 }
 
 tasks.compileKotlinNative.dependsOn compileWindowsResources
