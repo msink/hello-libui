@@ -1,7 +1,6 @@
 buildscript {
     repositories {
         maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
-        maven { url 'https://dl.bintray.com/msink/kotlin-dev' }
         jcenter()
     }
     dependencies {
@@ -11,8 +10,8 @@ buildscript {
 
 repositories {
     maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
+    maven { url 'https://dl.bintray.com/msink/kotlin-dev' }
     jcenter()
-    mavenLocal()
 }
 
 apply plugin: 'kotlin-multiplatform'
