@@ -28,7 +28,7 @@ val compileWindowsResources by tasks.registering(Exec::class) {
 }
 
 kotlin {
-    sourceSets.create("nativeMain").apply {
+    sourceSets.create("nativeMain") {
         dependencies {
             implementation("com.github.msink:libui:0.2.0-dev")
         }
