@@ -1,20 +1,13 @@
-buildscript {
-    repositories {
-        maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
-        jcenter()
-    }
-    dependencies {
-        classpath "org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.3.20-eap-25"
-    }
+plugins {
+    id "kotlin-multiplatform" version "1.3.20-eap-100"
 }
 
 repositories {
+    maven { url 'https://dl.bintray.com/kotlin/kotlin-dev' }
     maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
     maven { url 'https://dl.bintray.com/msink/kotlin-dev' }
     jcenter()
 }
-
-apply plugin: 'kotlin-multiplatform'
 
 final def os = org.gradle.internal.os.OperatingSystem.current()
 
@@ -39,11 +32,11 @@ kotlin {
             : os.isLinux()   ? presets.linuxX64
             : os.isMacOsX()  ? presets.macosX64
             : /*unknown host*/ null
-    targets {
-        fromPreset(nativePreset, 'native') {
-            compilations.main {
-                outputKinds 'executable'
+    targets.fromPreset(nativePreset, 'native') {
+        binaries {
+            executable([DEBUG]) {
                 if (os.isWindows()) {
+                    tasks.compileKotlinNative.dependsOn compileWindowsResources
                     linkerOpts "$windowsResources -mwindows"
                 }
             }
@@ -53,21 +46,4 @@ kotlin {
 
 dependencies {
     nativeMainImplementation 'com.github.msink:libui:0.2.0-dev'
-}
-
-tasks.compileKotlinNative.dependsOn compileWindowsResources
-
-task runProgram {
-    def buildType = 'DEBUG' // 'RELEASE'
-    def target = kotlin.targets.find {
-        it instanceof org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget && it.publishable
-    }
-
-    dependsOn target.compilations.main.linkTaskName('EXECUTABLE', buildType)
-
-    doLast {
-        exec {
-            executable target.compilations.main.getBinary('EXECUTABLE', buildType)
-        }
-    }
 }
