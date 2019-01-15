@@ -8,11 +8,11 @@ pluginManagement {
     }
 
     repositories {
-        maven { url 'https://dl.bintray.com/kotlin/kotlin-dev' }
-        maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
+        maven { url = uri("https://dl.bintray.com/kotlin/kotlin-dev") }
+        maven { url = uri("https://dl.bintray.com/kotlin/kotlin-eap") }
         mavenCentral()
-        maven { url 'https://plugins.gradle.org/m2/' }
+        maven { url = uri("https://plugins.gradle.org/m2/") }
     }
 }
 
-enableFeaturePreview('GRADLE_METADATA')
+enableFeaturePreview("GRADLE_METADATA")
