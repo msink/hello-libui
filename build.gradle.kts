@@ -3,7 +3,6 @@ plugins {
 }
 
 repositories {
-    maven { url = uri("https://dl.bintray.com/kotlin/kotlin-dev") }
     maven { url = uri("https://dl.bintray.com/kotlin/kotlin-eap") }
     maven { url = uri("https://dl.bintray.com/msink/kotlin-dev") }
     jcenter()
