@@ -43,7 +43,7 @@ kotlin {
             executable(listOf(DEBUG)) {
                 if (os.isWindows) {
                     tasks.named("compileKotlinNative") { dependsOn(compileWindowsResources) }
-                    linkerOpts("$windowsResources -mwindows")
+                    linkerOpts(windowsResources, "-mwindows")
                 }
             }
         }
