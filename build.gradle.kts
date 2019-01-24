@@ -1,10 +1,8 @@
 plugins {
-    id("kotlin-multiplatform") version "1.3.20-eap-100"
+    kotlin("multiplatform") version "1.3.20"
 }
 
 repositories {
-    maven { url = uri("https://dl.bintray.com/kotlin/kotlin-eap") }
-    maven { url = uri("https://dl.bintray.com/msink/kotlin-dev") }
     jcenter()
 }
 
@@ -29,7 +27,7 @@ val compileWindowsResources by tasks.registering(Exec::class) {
 kotlin {
     sourceSets.create("nativeMain") {
         dependencies {
-            implementation("com.github.msink:libui:0.2.0-dev")
+            implementation("com.github.msink:libui:0.1.2")
         }
     }
     val nativeTarget = when {
