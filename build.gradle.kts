@@ -45,7 +45,9 @@ fun org.jetbrains.kotlin.gradle.plugin.mpp.Executable.windowsResources(rcFileNam
         inputs.file(rcFile)
         outputs.file(resFile)
         commandLine("cmd", "/c", "windres", rcFile, "-O", "coff", "-o", resFile)
-        environment("PATH", "c:/msys64/mingw64/bin;$konanLlvmDir;${System.getenv("PATH")}")
+        environment("PATH", "$konanLlvmDir;${System.getenv("PATH")}")
+
+        dependsOn(tasks.named("compileKotlin${target.getName().capitalize()}"))
     }
 
     tasks.named(linkTask.name) { dependsOn(windres) }
