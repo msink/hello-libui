@@ -6,30 +6,14 @@ repositories {
     jcenter()
 }
 
-val os = org.gradle.internal.os.OperatingSystem.current()!!
-
-val resourcesDir = "$projectDir/src/nativeMain/resources"
-val windowsResources = "$buildDir/resources/hello.res"
-
-val compileWindowsResources by tasks.registering(Exec::class) {
-    onlyIf { os.isWindows }
-
-    val konanUserDir = System.getenv("KONAN_DATA_DIR") ?: "${System.getProperty("user.home")}/.konan"
-    val konanLlvmDir = "$konanUserDir/dependencies/msys2-mingw-w64-x86_64-gcc-7.3.0-clang-llvm-lld-6.0.1/bin"
-    val rcFile = file("$resourcesDir/hello.rc")
-
-    inputs.file(rcFile)
-    outputs.file(file(windowsResources))
-    commandLine("cmd", "/c", "windres", rcFile, "-O", "coff", "-o", windowsResources)
-    environment("PATH", "c:/msys64/mingw64/bin;$konanLlvmDir;${System.getenv("PATH")}")
-}
-
 kotlin {
     sourceSets.create("nativeMain") {
         dependencies {
             implementation("com.github.msink:libui:0.1.2")
         }
     }
+
+    val os = org.gradle.internal.os.OperatingSystem.current()!!
     val nativeTarget = when {
         os.isWindows -> mingwX64("native")
         os.isMacOsX -> macosX64("native")
@@ -40,10 +24,30 @@ kotlin {
         binaries {
             executable(listOf(DEBUG)) {
                 if (os.isWindows) {
-                    tasks.named("compileKotlinNative") { dependsOn(compileWindowsResources) }
-                    linkerOpts(windowsResources, "-mwindows")
+                    windowsResources("hello.rc")
+                    linkerOpts("-mwindows")
                 }
             }
         }
     }
+}
+
+fun org.jetbrains.kotlin.gradle.plugin.mpp.Executable.windowsResources(rcFileName: String) {
+    val suffix = "${buildType.getName().capitalize()}${target.getName().capitalize()}"
+    val resourcesDir = "$projectDir/src/${target.name}Main/resources"
+    val resFile = file("$buildDir/windowsResources$suffix/${rcFileName.substringBefore(".rc")}.res")
+
+    val windres = tasks.create("compileWindowsResources$suffix}", Exec::class) {
+        val konanUserDir = System.getenv("KONAN_DATA_DIR") ?: "${System.getProperty("user.home")}/.konan"
+        val konanLlvmDir = "$konanUserDir/dependencies/msys2-mingw-w64-x86_64-gcc-7.3.0-clang-llvm-lld-6.0.1/bin"
+        val rcFile = file("$resourcesDir/$rcFileName")
+
+        inputs.file(rcFile)
+        outputs.file(resFile)
+        commandLine("cmd", "/c", "windres", rcFile, "-O", "coff", "-o", resFile)
+        environment("PATH", "c:/msys64/mingw64/bin;$konanLlvmDir;${System.getenv("PATH")}")
+    }
+
+    tasks.named(linkTask.name) { dependsOn(windres) }
+    linkerOpts(resFile.toString())
 }
