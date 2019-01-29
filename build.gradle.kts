@@ -14,13 +14,12 @@ kotlin {
     }
 
     val os = org.gradle.internal.os.OperatingSystem.current()!!
-    val nativeTarget = when {
+    when {
         os.isWindows -> mingwX64("native")
         os.isMacOsX -> macosX64("native")
         os.isLinux -> linuxX64("native")
         else -> throw Error("Unknown host")
-    }
-    configure(listOf(nativeTarget)) {
+    }.apply {
         binaries {
             executable(listOf(DEBUG)) {
                 if (os.isWindows) {
@@ -37,19 +36,19 @@ fun org.jetbrains.kotlin.gradle.plugin.mpp.Executable.windowsResources(rcFileNam
     val resourcesDir = "$projectDir/src/${target.name}Main/resources"
     val resFile = file("$buildDir/windowsResources$suffix/${rcFileName.substringBefore(".rc")}.res")
 
-    val windres = tasks.create("compileWindowsResources$suffix}", Exec::class) {
+    val windresTask = tasks.create("compileWindowsResources$suffix", Exec::class) {
         val konanUserDir = System.getenv("KONAN_DATA_DIR") ?: "${System.getProperty("user.home")}/.konan"
         val konanLlvmDir = "$konanUserDir/dependencies/msys2-mingw-w64-x86_64-gcc-7.3.0-clang-llvm-lld-6.0.1/bin"
         val rcFile = file("$resourcesDir/$rcFileName")
 
         inputs.file(rcFile)
         outputs.file(resFile)
-        commandLine("cmd", "/c", "windres", rcFile, "-O", "coff", "-o", resFile)
+        commandLine("$konanLlvmDir/windres", rcFile, "-D_${buildType.name}", "-O", "coff", "-o", resFile)
         environment("PATH", "$konanLlvmDir;${System.getenv("PATH")}")
 
         dependsOn(tasks.named("compileKotlin${target.getName().capitalize()}"))
     }
 
-    tasks.named(linkTask.name) { dependsOn(windres) }
+    linkTask.dependsOn(windresTask)
     linkerOpts(resFile.toString())
 }
