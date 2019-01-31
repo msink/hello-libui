@@ -6,27 +6,23 @@ repositories {
     jcenter()
 }
 
+val os = org.gradle.internal.os.OperatingSystem.current()!!
+
 kotlin {
-    sourceSets.create("nativeMain") {
-        dependencies {
-            implementation("com.github.msink:libui:0.1.2")
+    when {
+        os.isWindows -> mingwX64("libui")
+        os.isMacOsX -> macosX64("libui")
+        os.isLinux -> linuxX64("libui")
+        else -> throw Error("Unknown host")
+    }.binaries.executable {
+        if (os.isWindows) {
+            windowsResources("hello.rc")
+            linkerOpts("-mwindows")
         }
     }
-
-    val os = org.gradle.internal.os.OperatingSystem.current()!!
-    when {
-        os.isWindows -> mingwX64("native")
-        os.isMacOsX -> macosX64("native")
-        os.isLinux -> linuxX64("native")
-        else -> throw Error("Unknown host")
-    }.apply {
-        binaries {
-            executable(listOf(DEBUG)) {
-                if (os.isWindows) {
-                    windowsResources("hello.rc")
-                    linkerOpts("-mwindows")
-                }
-            }
+    val libuiMain by sourceSets.getting {
+        dependencies {
+            implementation("com.github.msink:libui:0.1.2")
         }
     }
 }
