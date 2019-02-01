@@ -29,8 +29,8 @@ kotlin {
 
 fun org.jetbrains.kotlin.gradle.plugin.mpp.Executable.windowsResources(rcFileName: String) {
     val taskName = linkTaskName.replaceFirst("link", "windres")
-    val inFile = file("${compilation.defaultSourceSet.resources.sourceDirectories.asPath}/$rcFileName")
-    val outFile = file("$buildDir/processedResources/$taskName.res")
+    val inFile = compilation.defaultSourceSet.resources.sourceDirectories.singleFile.resolve(rcFileName)
+    val outFile = buildDir.resolve("processedResources/$taskName.res")
 
     val windresTask = tasks.create<Exec>(taskName) {
         val konanUserDir = System.getenv("KONAN_DATA_DIR") ?: "${System.getProperty("user.home")}/.konan"
