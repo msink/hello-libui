@@ -28,21 +28,22 @@ kotlin {
 }
 
 fun org.jetbrains.kotlin.gradle.plugin.mpp.Executable.windowsResources(rcFileName: String) {
-    val rcFile = file("${compilation.defaultSourceSet.resources.sourceDirectories.asPath}/$rcFileName")
-    val resFile = file("$buildDir/windowsResources/${target.getName()}/${buildType.getName()}/$baseName.res")
+    val taskName = linkTaskName.replaceFirst("link", "windres")
+    val inFile = file("${compilation.defaultSourceSet.resources.sourceDirectories.asPath}/$rcFileName")
+    val outFile = file("$buildDir/processedResources/$taskName.res")
 
-    val windresTask = tasks.create<Exec>("windres${buildType.getName().capitalize()}${target.getName().capitalize()}") {
+    val windresTask = tasks.create<Exec>(taskName) {
         val konanUserDir = System.getenv("KONAN_DATA_DIR") ?: "${System.getProperty("user.home")}/.konan"
         val konanLlvmDir = "$konanUserDir/dependencies/msys2-mingw-w64-x86_64-gcc-7.3.0-clang-llvm-lld-6.0.1/bin"
 
-        inputs.file(rcFile)
-        outputs.file(resFile)
-        commandLine("$konanLlvmDir/windres", rcFile, "-D_${buildType.name}", "-O", "coff", "-o", resFile)
+        inputs.file(inFile)
+        outputs.file(outFile)
+        commandLine("$konanLlvmDir/windres", inFile, "-D_${buildType.name}", "-O", "coff", "-o", outFile)
         environment("PATH", "$konanLlvmDir;${System.getenv("PATH")}")
 
         dependsOn(compilation.compileKotlinTask)
     }
 
     linkTask.dependsOn(windresTask)
-    linkerOpts(resFile.toString())
+    linkerOpts(outFile.toString())
 }
