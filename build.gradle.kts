@@ -1,5 +1,5 @@
 plugins {
-    kotlin("multiplatform") version "1.3.21"
+    kotlin("multiplatform") version "1.3.30"
 }
 
 repositories {
@@ -10,7 +10,7 @@ val os = org.gradle.internal.os.OperatingSystem.current()!!
 
 kotlin {
     when {
-        os.isWindows -> mingwX64("libui")
+        os.isWindows -> mingwX86("libui")
         os.isMacOsX -> macosX64("libui")
         os.isLinux -> linuxX64("libui")
         else -> throw Error("Unknown host")
@@ -22,7 +22,7 @@ kotlin {
     }
     val libuiMain by sourceSets.getting {
         dependencies {
-            implementation("com.github.msink:libui:0.1.2")
+            implementation("com.github.msink:libui:0.1.3")
         }
     }
 }
@@ -34,7 +34,7 @@ fun org.jetbrains.kotlin.gradle.plugin.mpp.Executable.windowsResources(rcFileNam
 
     val windresTask = tasks.create<Exec>(taskName) {
         val konanUserDir = System.getenv("KONAN_DATA_DIR") ?: "${System.getProperty("user.home")}/.konan"
-        val konanLlvmDir = "$konanUserDir/dependencies/msys2-mingw-w64-x86_64-gcc-7.3.0-clang-llvm-lld-6.0.1/bin"
+        val konanLlvmDir = "$konanUserDir/dependencies/msys2-mingw-w64-i686-gcc-7.4.0-clang-llvm-6.0.1/bin"
 
         inputs.file(inFile)
         outputs.file(outFile)
