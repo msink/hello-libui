@@ -4,6 +4,7 @@ plugins {
 
 repositories {
     jcenter()
+    maven("https://dl.bintray.com/kotlin/kotlin-dev")
 }
 
 val os = org.gradle.internal.os.OperatingSystem.current()!!
