@@ -1,5 +1,5 @@
 plugins {
-    kotlin("multiplatform") version "1.3.50"
+    kotlin("multiplatform") version "1.3.60"
 }
 
 repositories {
@@ -22,7 +22,7 @@ kotlin {
     }
     val libuiMain by sourceSets.getting {
         dependencies {
-            implementation("com.github.msink:libui:0.1.5")
+            implementation("com.github.msink:libui:0.1.6")
         }
     }
 }
@@ -34,7 +34,7 @@ fun org.jetbrains.kotlin.gradle.plugin.mpp.Executable.windowsResources(rcFileNam
 
     val windresTask = tasks.create<Exec>(taskName) {
         val konanUserDir = System.getenv("KONAN_DATA_DIR") ?: "${System.getProperty("user.home")}/.konan"
-        val konanLlvmDir = "$konanUserDir/dependencies/msys2-mingw-w64-i686-gcc-7.4.0-clang-llvm-6.0.1/bin"
+        val konanLlvmDir = "$konanUserDir/dependencies/msys2-mingw-w64-i686-clang-llvm-lld-compiler_rt-8.0.1/bin"
 
         inputs.file(inFile)
         outputs.file(outFile)
