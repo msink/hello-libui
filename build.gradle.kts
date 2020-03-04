@@ -1,5 +1,5 @@
 plugins {
-    kotlin("multiplatform") version "1.3.60"
+    kotlin("multiplatform") version "1.3.70"
 }
 
 repositories {
@@ -22,7 +22,7 @@ kotlin {
     }
     val libuiMain by sourceSets.getting {
         dependencies {
-            implementation("com.github.msink:libui:0.1.6")
+            implementation("com.github.msink:libui:0.1.7")
         }
     }
 }
